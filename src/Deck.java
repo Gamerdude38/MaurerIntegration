@@ -5,7 +5,7 @@ public class Deck {
 	private final int MAX_CARDS = 52;
 	private PlayingCard[] deck = new PlayingCard[MAX_CARDS];
 	
-	Deck() {
+	public Deck() {
 		int deckMarker = 0; //deckMarker is going to increment by 1 at the end of the denom for loop to keep the placement of the cards
 		
 		for (int suit = 0; suit < 4; suit++) {

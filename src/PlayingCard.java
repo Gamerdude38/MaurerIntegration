@@ -6,7 +6,7 @@ public class PlayingCard {
 	private String denomination;
 	private int value;
 	
-	PlayingCard(String denomination, String suit){
+	public PlayingCard(String denomination, String suit){
 		this.suit = suit;
 		this.denomination = denomination;
 		
