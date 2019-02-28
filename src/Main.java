@@ -1,7 +1,7 @@
 import java.util.Scanner;
 
 // John Maurer
-// A program integrating skills learned in COP 2006.
+// A program integrating skills learned in COP 2006. Driver class
 
 /*
  * Foreword: I'm thinking of making a Blackjack card game. Or perhaps a collection of card games
@@ -31,24 +31,70 @@ import java.util.Scanner;
 // Char: Single 16-bit Unicode character from '\u0000' (0) to '\uffff' (65,535) Written with
 // singular quotes, NOT double quotes
 
+// Ctrl + Shift + F ==> Enforce coding style (Google)
+
 public class Main {
 
   public static void main(String[] args) {
-    boolean isTrue = true;
-    String myString = "HEya";
-    final int myNumber = 7; // the keyword "final" means that this variable cannot be changed later.
-                            // myNumber will always be the number it is assigned to on this line,
-                            // regardless of the code after this line.
-    double myDouble = 2.3;
-
     Scanner scan = new Scanner(System.in);
 
+    int selection = 0;
+
+    do {
+      System.out
+          .println("Welcome! Please type a number that matches in the menu. Press 0 to quit.");
+      System.out.println("1. Run the 'bulkIntegration' method.");
+      System.out.println("2. Play Blackjack.");
+      System.out.print("Enter your selection: ");
+
+      selection = scan.nextInt();
+
+      switch (selection) {
+        case 0:
+          break;
+        case 1:
+          bulkIntegration();
+          break;
+        case 2:
+          playBlackjack();
+          break;
+        default:
+          System.out.println("Please try again.");
+      }
+
+    } while (selection != 0);
+
+    scan.close();
+  }
+
+  public static void playBlackjack() {
+    System.out.println("Welcome to Casino Royale! \n");
+
+    Deck blackjackDeck = new Deck();
+
+    blackjackDeck.shuffle(); // this is a method call. If the shuffle() method had a parameter, the
+    // argument for this method call would be in between the parentheses.
+
+    System.out.println(blackjackDeck.toString());
+    System.out.println("Drawn Card: " + blackjackDeck.dealCard().toString());
+    System.out.println(blackjackDeck.toString());
+  }
+
+  public static void bulkIntegration() {
+    boolean isTrue = true;
+    String myString = "HEya";
+    final int MY_NUMBER = 7; // the keyword "final" means that this variable cannot be changed
+                             // later.
+                             // MY_NUMBER will always be the number it is assigned to on this line,
+                             // regardless of the code after this line.
+    double myDouble = 2.3;
 
     System.out.println(
-        "Welcome to this integration project! If you tune in long enough, it'll turn into a game of Blackjack!");
+        "Welcome to this integration project! If you tune in long enough, it'll turn into a game of"
+            + " Blackjack!");
     System.out.println("Boolean: isTrue = " + isTrue);
     System.out.println("String: myString = " + myString);
-    System.out.println("Int: myNumber = " + myNumber);
+    System.out.println("Int: MY_NUMBER = " + MY_NUMBER);
     System.out.println("Double: myDouble = " + myDouble);
 
     myString = myString.toLowerCase(); // .toLowerCase returns a string where all the letters are
@@ -61,6 +107,29 @@ public class Main {
                                                    // string
 
     System.out.println("String: mySubstring = " + mySubstring);
+
+    String yesNo = mySubstring.equals("H") ? "Yes" : "No"; // Using == compares the locations in
+                                                           // memory of two objects.
+    System.out.println(yesNo);
+
+    while (yesNo.equals("Yes")) {
+      if (isTrue && 1 > 0) {
+        yesNo = "No";
+        break; // This causes the loop to end and for execution to continue outside of the statement
+               // it resides in.
+      } else {
+        yesNo = "No";
+        continue; // This causes the loop to immediately shift to the next iteration of the loop.
+      }
+    }
+
+    myDouble += 3 + 4 - 2 * 8 / 3 % 5 + myDouble++ + myDouble--; // Operator precedence is
+                                                                 // essentially the order of
+                                                                 // operators. The order goes along
+                                                                 // the lines of post-fix, unary,
+                                                                 // multiplicitive, additive,
+                                                                 // relational, conditional, and
+                                                                 // finally assignment.
 
     if (mySubstring.compareTo(myString) >= 1) { // .compareTo returns an integer that represents the
                                                 // lexicographic distance one string is from
@@ -84,17 +153,6 @@ public class Main {
                                    // The 2.3 will lose its .3 and just become 2.
 
     System.out.println("myDouble being casted to an integer results in: " + dubToInt);
-    scan.close();
-
-    System.out.println("Time for the real fun to begin. \n");
-
-    Deck myDeck = new Deck();
-
-    System.out.println("Brand new deck of cards: \n" + myDeck.toString());
-
-    myDeck.shuffle();
-
-    System.out.println("The same deck, but shuffled now: \n" + myDeck.toString());
   }
 
 }

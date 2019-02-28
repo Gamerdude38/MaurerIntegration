@@ -2,25 +2,24 @@
 // A class that uses the PlayingCard class to create a Deck object, with 52 unique cards. Also has
 // handy methods for shuffling and stuff
 
+import java.util.ArrayList;
+
 public class Deck {
-  private final int MAX_CARDS = 52;
-  private PlayingCard[] deck = new PlayingCard[MAX_CARDS];
+  private ArrayList<PlayingCard> deck = new ArrayList<PlayingCard>();
 
   public Deck() {
-    int deckMarker = 0; // deckMarker is going to increment by 1 at the end of the denom for loop to
-                        // keep the placement of the cards
-
     for (int suit = 0; suit < 4; suit++) {
       for (int denom = 0; denom < 13; denom++) { // "denom" stands for card denomination
         PlayingCard temp = new PlayingCard(this.deriveDenom(denom), this.deriveSuit(suit));
-        deck[deckMarker] = temp;
-
-        deckMarker++;
+        System.out.println(deck.size());
+        deck.add(temp);
       }
     }
   }
 
-  private String deriveSuit(int suit) {
+  private String deriveSuit(int suit) { // this is a method declaration, AKA the method signature.
+                                        // Right below is its header, followed by the parameter
+                                        // "suit".
     switch (suit) {
       case 0:
         return "Spades";
@@ -31,7 +30,7 @@ public class Deck {
       case 3:
         return "Clubs";
       default:
-        return null;
+        return "INVALID";
     }
   }
 
@@ -64,18 +63,16 @@ public class Deck {
       case 12:
         return "King";
       default:
-        return null;
+        return "INVALID";
     }
   }
 
-  public String toString() {
-    String str = "";
+  public PlayingCard dealCard() {
+    PlayingCard drawnCard = deck.get(0);
 
-    for (int i = 0; i < MAX_CARDS; i++) {
-      str += (deck[i].toString() + "\n");
-    }
+    deck.remove(0);
 
-    return str;
+    return drawnCard;
   }
 
   public void shuffle() {
@@ -86,12 +83,22 @@ public class Deck {
     for (int i = 0; i < 200; i++) { // to ensure good shuffling, I give the random number generator
                                     // a chance to shuffle every card. Its a basic shuffling method,
                                     // but hopefully 200 iterations will shuffle the cards nicely
-      firstIndex = (int) (Math.random() * 52);
-      secondIndex = (int) (Math.random() * 52);
+      firstIndex = (int) (Math.random() * deck.size());
+      secondIndex = (int) (Math.random() * deck.size());
 
-      PlayingCard temp = deck[firstIndex];
-      deck[firstIndex] = deck[secondIndex];
-      deck[secondIndex] = temp;
+      PlayingCard temp = deck.get(firstIndex);
+      deck.set(firstIndex, deck.get(secondIndex));
+      deck.set(secondIndex, temp);
     }
+  }
+
+  public String toString() {
+    String str = "";
+
+    for (int i = 0; i < deck.size(); i++) {
+      str += (deck.get(i).toString() + "\n");
+    }
+
+    return str;
   }
 }
