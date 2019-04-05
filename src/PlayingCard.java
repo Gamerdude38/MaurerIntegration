@@ -7,13 +7,19 @@ public class PlayingCard {
   private String denomination;
   private int value;
 
+  public PlayingCard() {
+    suit = "Ace";
+    denomination = "Spades";
+    value = 11;
+  }
+
   public PlayingCard(String denomination, String suit) {
     this.suit = suit;
     this.denomination = denomination;
 
     switch (denomination) {
       case "Ace":
-        value = 1;
+        value = 11;
         break;
       case "Two":
         value = 2;
@@ -71,7 +77,11 @@ public class PlayingCard {
     return value;
   }
 
+  public void setValue(int value) {
+    this.value = value;
+  }
+
   public String toString() {
-    return denomination + " of " + suit + ".";
+    return denomination + " of " + suit;
   }
 }

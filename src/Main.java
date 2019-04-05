@@ -1,3 +1,4 @@
+import java.util.ArrayList;
 import java.util.Scanner;
 
 // John Maurer
@@ -37,17 +38,30 @@ public class Main {
 
   public static void main(String[] args) {
     Scanner scan = new Scanner(System.in);
+    boolean goodInput = false;
 
     int selection = 0;
 
     do {
+      goodInput = false;
       System.out
-          .println("Welcome! Please type a number that matches in the menu. Press 0 to quit.");
+          .println("\nWelcome! Please type a number that matches in the menu. Press 0 to quit.");
       System.out.println("1. Run the 'bulkIntegration' method.");
       System.out.println("2. Play Blackjack.");
-      System.out.print("Enter your selection: ");
+      System.out.println("Enter your selection: ");
 
-      selection = scan.nextInt();
+      while (!goodInput) {
+        try {
+          selection = scan.nextInt();
+          goodInput = true;
+        } catch (Exception ex) {
+          System.out.println("Please enter in an integer: ");
+          scan.nextLine();
+        }
+      }
+
+      scan.nextLine();
+      System.out.println();
 
       switch (selection) {
         case 0:
@@ -56,7 +70,7 @@ public class Main {
           bulkIntegration();
           break;
         case 2:
-          playBlackjack();
+          playBlackjack(scan);
           break;
         default:
           System.out.println("Please try again.");
@@ -67,17 +81,190 @@ public class Main {
     scan.close();
   }
 
-  public static void playBlackjack() {
-    System.out.println("Welcome to Casino Royale! \n");
+  public static void playBlackjack(Scanner input) {
+    boolean playAgain = true;
+    boolean stand = false;
+    int playerValue = 0;
+    int dealerValue = 0;
 
+    String yesOrNo = "y";
+    ArrayList<PlayingCard> dealersHand = new ArrayList<PlayingCard>();
+    ArrayList<PlayingCard> playersHand = new ArrayList<PlayingCard>();
     Deck blackjackDeck = new Deck();
 
-    blackjackDeck.shuffle(); // this is a method call. If the shuffle() method had a parameter, the
-    // argument for this method call would be in between the parentheses.
+    do {
+      // Set up game
+      playerValue = 0;
+      dealerValue = 0;
 
-    System.out.println(blackjackDeck.toString());
-    System.out.println("Drawn Card: " + blackjackDeck.dealCard().toString());
-    System.out.println(blackjackDeck.toString());
+      stand = false;
+
+      blackjackDeck.shuffle(); // this is a method call. If the shuffle() method had a parameter,
+      // the argument for this method call would be in between the parentheses.
+
+      playersHand.add(blackjackDeck.dealCard());
+      dealersHand.add(blackjackDeck.dealCard());
+      playersHand.add(blackjackDeck.dealCard());
+      dealersHand.add(blackjackDeck.dealCard());
+
+      System.out.println("The first cards have been dealt. The dealer is showing a "
+          + dealersHand.get(1).toString() + ".");
+      System.out.println("Your cards are: " + playersHand.get(0).toString() + ", "
+          + playersHand.get(1).toString());
+
+      // Calculate card total value, particularly if the card is a GOD DAMN ACE
+      playerValue = calculateBestScore(playersHand);
+      dealerValue = calculateBestScore(dealersHand);
+
+      System.out.println("Your current best score: " + playerValue);
+
+      // Loop until player busts or doesn't want to hit anymore
+      do {
+        System.out.println("Would you like to hit? Y/N: ");
+        yesOrNo = input.next();
+
+        while (!yesOrNo.equalsIgnoreCase("y") && !yesOrNo.equalsIgnoreCase("n")) {
+          System.out.println("Please type in 'Y' or 'N' for your selection: ");
+          yesOrNo = input.next();
+        }
+
+        if (yesOrNo.equalsIgnoreCase("n")) {
+          stand = true;
+          System.out.println("You choose to stand.");
+        } else {
+          playersHand.add(blackjackDeck.dealCard());
+
+          String currentHand = "";
+
+          for (int i = 0; i < playersHand.size(); i++) {
+            if (i == (playersHand.size() - 1)) {
+              currentHand += playersHand.get(i).toString();
+            } else {
+              currentHand += playersHand.get(i).toString() + ", ";
+            }
+          }
+
+          System.out.println("You draw a card. Your hand is now: " + currentHand);
+
+          playerValue = calculateBestScore(playersHand);
+
+          System.out.println("Your current best score: " + playerValue);
+        }
+
+        if (playerValue >= 21) {
+          stand = true;
+        }
+
+      } while (stand == false);
+
+      // Loop until dealer reaches 16 (hit if 17) or busts
+      System.out.println("The dealer reveals their full hand: " + dealersHand.get(0).toString()
+          + ", " + dealersHand.get(1).toString());
+      if (playerValue <= 21) {
+        do {
+          if (dealerValue > 17 || dealerValue > playerValue) {
+            System.out.println("The dealer stands.");
+          } else {
+            dealersHand.add(blackjackDeck.dealCard());
+
+            String currentHand = "";
+
+            for (int i = 0; i < dealersHand.size(); i++) {
+              if (i == (dealersHand.size() - 1)) {
+                currentHand += dealersHand.get(i).toString();
+              } else {
+                currentHand += dealersHand.get(i).toString() + ", ";
+              }
+            }
+
+            System.out.println("The dealer draws a card. Their hand now shows: " + currentHand);
+
+            dealerValue = calculateBestScore(dealersHand);
+          }
+
+        } while (dealerValue <= 17);
+      } else {
+        System.out.println("The dealer laughs at your busted plight. The dealer stands.");
+      }
+
+      // Compare and determine winner
+      if (dealerValue > 21 && playerValue > 21) {
+        System.out.println("You both busted. Its a draw.");
+      } else if (dealerValue > 21) {
+        System.out.println("The dealer busted. You win!");
+      } else if (playerValue > 21) {
+        System.out.println("You busted. The dealer wins.");
+      } else if (playerValue > dealerValue) {
+        System.out.println("Your total is higher than the dealer's. You win!");
+      } else if (dealerValue > playerValue) {
+        System.out.println("The dealer's total is higher than yours. The dealer wins.");
+      } else if (playerValue == 21 && dealerValue == 21) {
+        if (playersHand.size() == 2 && playersHand.get(0).getValue() == 10
+            && playersHand.get(1).getValue() == 11) {
+          System.out.println("You win with a Blackjack!");
+        } else if (playersHand.size() == 2 && playersHand.get(0).getValue() == 11
+            && playersHand.get(1).getValue() == 10) {
+          System.out.println("You win with a Blackjack!");
+        } else if (dealersHand.size() == 2 && dealersHand.get(0).getValue() == 11
+            && dealersHand.get(1).getValue() == 10) {
+          System.out.println("The dealer wins with a Blackjack.");
+        } else if (dealersHand.size() == 2 && dealersHand.get(0).getValue() == 11
+            && dealersHand.get(1).getValue() == 10) {
+          System.out.println("The dealer wins with a Blackjack.");
+        } else {
+          System.out.println("It's a draw.");
+        }
+      } else {
+        System.out.println("It's a draw.");
+      }
+
+      // Prompt if user wants to play again
+      System.out.println("Would you like to play again? Y/N: ");
+      yesOrNo = input.next();
+
+      while (!yesOrNo.equalsIgnoreCase("y") && !yesOrNo.equalsIgnoreCase("n")) {
+        System.out.println("Please type in 'Y' or 'N' for your selection: ");
+        yesOrNo = input.next();
+      }
+
+      if (yesOrNo.equalsIgnoreCase("y")) {
+        playAgain = true;
+      } else {
+        playAgain = false;
+      }
+
+      for (int i = 0; i < playersHand.size(); i++) {
+        blackjackDeck.addCard(playersHand.get(i));
+      }
+
+      for (int i = 0; i < dealersHand.size(); i++) {
+        blackjackDeck.addCard(dealersHand.get(i));
+      }
+
+      playersHand.clear();
+      dealersHand.clear();
+
+    } while (playAgain);
+
+  }
+
+  public static int calculateBestScore(ArrayList<PlayingCard> arrayList) {
+    int total = 0;
+
+    for (int i = 0; i < arrayList.size(); i++) {
+      total += arrayList.get(i).getValue();
+    }
+
+    if (total > 21) {
+      for (int i = 0; i < arrayList.size(); i++) {
+        if (arrayList.get(i).getValue() == 11) {
+          arrayList.get(i).setValue(1);
+          total = calculateBestScore(arrayList);
+        }
+      }
+    }
+
+    return total;
   }
 
   public static void bulkIntegration() {
@@ -153,6 +340,57 @@ public class Main {
                                    // The 2.3 will lose its .3 and just become 2.
 
     System.out.println("myDouble being casted to an integer results in: " + dubToInt);
+
+    int[] myArray = new int[10];
+    String listOfNumbers = "";
+
+    for (int i = 0; i < myArray.length; i++) {
+      myArray[i] = (i + 1);
+      listOfNumbers += myArray[i] + ", ";
+    }
+
+    System.out.println("myArray: " + listOfNumbers);
+
+    int smallest = myArray[0];
+    int accumulator = 0;
+    int target = 6;
+    for (int i : myArray) {
+      System.out.println("Loop " + i);
+    }
+
+    for (int i = 0; i < myArray.length; i++) {
+      accumulator += myArray[i];
+
+      if (smallest > myArray[i]) {
+        smallest = myArray[i];
+      }
+
+      if (myArray[i] == target) {
+        System.out.println("The number 6 is located at index " + i);
+      }
+    }
+
+    System.out.println("The total of the array is " + accumulator);
+    System.out.println("The smallest value of the array is " + smallest);
+
+    int[][] my2DArray = new int[10][10];
+
+    for (int row = 0; row < my2DArray.length; row++) {
+      for (int col = 0; col < my2DArray[0].length; col++) {
+        my2DArray[row][col] = 5 * row * col;
+      }
+    }
+
+    target = 80;
+
+    for (int row = 0; row < my2DArray.length; row++) {
+      for (int col = 0; col < my2DArray[0].length; col++) {
+        if (my2DArray[row][col] == target) {
+          System.out
+              .println("The number 80 is located at array coordinates (" + row + ", " + col + ")");
+        }
+      }
+    }
   }
 
 }

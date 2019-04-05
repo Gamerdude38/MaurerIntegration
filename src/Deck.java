@@ -11,7 +11,6 @@ public class Deck {
     for (int suit = 0; suit < 4; suit++) {
       for (int denom = 0; denom < 13; denom++) { // "denom" stands for card denomination
         PlayingCard temp = new PlayingCard(this.deriveDenom(denom), this.deriveSuit(suit));
-        System.out.println(deck.size());
         deck.add(temp);
       }
     }
@@ -65,6 +64,14 @@ public class Deck {
       default:
         return "INVALID";
     }
+  }
+
+  public void addCard(PlayingCard card) {
+    deck.add(card);
+  }
+
+  public void addCard() {
+
   }
 
   public PlayingCard dealCard() {
