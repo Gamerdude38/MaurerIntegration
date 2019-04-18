@@ -1,18 +1,6 @@
 import java.util.ArrayList;
 import java.util.Scanner;
 
-// John Maurer
-// A program integrating skills learned in COP 2006. Driver class
-
-/*
- * Foreword: I'm thinking of making a Blackjack card game. Or perhaps a collection of card games
- * using ASCII graphics This main class for the time being is serving as a way for me to at least
- * make sure I have the minimum requirements complete for the integration project milestones.
- * Hopefully by the time I actually sit down for a couple of hours to work on this, a lot of the
- * code here will actually be replaced by code that will actually run the game. I'm just going to
- * start with a PLayingCard class and go from there, pls don't be mad.
- */
-
 // typing the word "sysout", then pressing [Ctrl + Space] yields "System.out.println();"
 // scan.nextLine(); consumes the rest of the line. Any time you go from entering a number to
 // entering a string, add a "scan.nextLine();" before "String a = scan.nextLine();"
@@ -34,10 +22,25 @@ import java.util.Scanner;
 
 // Ctrl + Shift + F ==> Enforce coding style (Google)
 
+/**
+ * A program integrating skills learned in COP 2006. Serves as the driver class of the program.
+ * 
+ * @author John Maurer
+ *
+ */
 public class Main {
 
+  /**
+   * Runs the entire program. Serves as the first method of execution.
+   * 
+   * @param args an array of strings used to determine the environment the program runs in, usually
+   *        empty unless the program is run through the console and the user specifies different
+   *        codes.
+   */
   public static void main(String[] args) {
-    Scanner scan = new Scanner(System.in);
+    Scanner scan = new Scanner(System.in, "utf-8");
+    // utf-8 is a code that tells the Scanner what we plan on feeding into it.
+
     boolean goodInput = false;
 
     int selection = 0;
@@ -81,6 +84,12 @@ public class Main {
     scan.close();
   }
 
+  /**
+   * Runs a console game of Blackjack. Contains the core of the game logic.
+   * 
+   * @param input a <code>Scanner</code> object, borrowed over from method <code>Main</code>.
+   * @see #main(String[])
+   */
   public static void playBlackjack(Scanner input) {
     boolean playAgain = true;
     boolean stand = false;
@@ -91,6 +100,7 @@ public class Main {
     ArrayList<PlayingCard> dealersHand = new ArrayList<PlayingCard>();
     ArrayList<PlayingCard> playersHand = new ArrayList<PlayingCard>();
     Deck blackjackDeck = new Deck();
+    StringBuilder builder = new StringBuilder();
 
     do {
       // Set up game
@@ -99,8 +109,9 @@ public class Main {
 
       stand = false;
 
-      blackjackDeck.shuffle(); // this is a method call. If the shuffle() method had a parameter,
-      // the argument for this method call would be in between the parentheses.
+      blackjackDeck.shuffle();
+      // this is a method call. If the shuffle() method had a parameter, the argument for this
+      // method call would be in between the parentheses.
 
       playersHand.add(blackjackDeck.dealCard());
       dealersHand.add(blackjackDeck.dealCard());
@@ -134,17 +145,22 @@ public class Main {
         } else {
           playersHand.add(blackjackDeck.dealCard());
 
-          String currentHand = "";
+          builder.setLength(0);
 
           for (int i = 0; i < playersHand.size(); i++) {
             if (i == (playersHand.size() - 1)) {
-              currentHand += playersHand.get(i).toString();
+              // currentHand += playersHand.get(i).toString(); <--SpotBugs says this is bad because
+              // using + in String concatenation creates a StringBuilder, appends the string
+              // together, then converts the total back to a String. It's more efficient to make one
+              // StringBuilder rather than creating one over and over again.
+              builder.append(playersHand.get(i).toString());
             } else {
-              currentHand += playersHand.get(i).toString() + ", ";
+              builder.append(playersHand.get(i).toString());
+              builder.append(", ");
             }
           }
 
-          System.out.println("You draw a card. Your hand is now: " + currentHand);
+          System.out.println("You draw a card. Your hand is now: " + builder.toString());
 
           playerValue = calculateBestScore(playersHand);
 
@@ -167,17 +183,19 @@ public class Main {
           } else {
             dealersHand.add(blackjackDeck.dealCard());
 
-            String currentHand = "";
+            builder.setLength(0);
 
             for (int i = 0; i < dealersHand.size(); i++) {
               if (i == (dealersHand.size() - 1)) {
-                currentHand += dealersHand.get(i).toString();
+                builder.append(dealersHand.get(i).toString());
               } else {
-                currentHand += dealersHand.get(i).toString() + ", ";
+                builder.append(dealersHand.get(i).toString());
+                builder.append(", ");
               }
             }
 
-            System.out.println("The dealer draws a card. Their hand now shows: " + currentHand);
+            System.out
+                .println("The dealer draws a card. Their hand now shows: " + builder.toString());
 
             dealerValue = calculateBestScore(dealersHand);
           }
@@ -248,18 +266,25 @@ public class Main {
 
   }
 
-  public static int calculateBestScore(ArrayList<PlayingCard> arrayList) {
+  /**
+   * Calculates the best score given the current cards in a player's hand. The best score is the
+   * highest score of cards possible without going over 21.
+   * 
+   * @param hand an <code>ArrayList</code> of type <code>PlayingCard</code> of the hand of a player.
+   * @return the best possible score given the player's hand.
+   */
+  public static int calculateBestScore(ArrayList<PlayingCard> hand) {
     int total = 0;
 
-    for (int i = 0; i < arrayList.size(); i++) {
-      total += arrayList.get(i).getValue();
+    for (int i = 0; i < hand.size(); i++) {
+      total += hand.get(i).getValue();
     }
 
     if (total > 21) {
-      for (int i = 0; i < arrayList.size(); i++) {
-        if (arrayList.get(i).getValue() == 11) {
-          arrayList.get(i).setValue(1);
-          total = calculateBestScore(arrayList);
+      for (int i = 0; i < hand.size(); i++) {
+        if (hand.get(i).getValue() == 11) {
+          hand.get(i).setValue(1);
+          total = calculateBestScore(hand);
         }
       }
     }
@@ -267,13 +292,20 @@ public class Main {
     return total;
   }
 
+  /**
+   * A method containing extra programming concepts not needed in the Blackjack game.
+   */
   public static void bulkIntegration() {
     boolean isTrue = true;
     String myString = "HEya";
-    final int MY_NUMBER = 7; // the keyword "final" means that this variable cannot be changed
-                             // later.
-                             // MY_NUMBER will always be the number it is assigned to on this line,
-                             // regardless of the code after this line.
+    final int MY_NUMBER = 7;
+    // CheckStyle shows a warning here since it doesn't like the CONSTANT_CASE formatting required
+    // by the Google Style Guide. Prof. Vanselow requested for the Google Style guide to be honored.
+
+    // the keyword "final" means that this variable cannot be changed later.
+    // MY_NUMBER will always be the number it is assigned to on this line, regardless of the code
+    // after this line.
+
     double myDouble = 2.3;
 
     System.out.println(
@@ -284,47 +316,43 @@ public class Main {
     System.out.println("Int: MY_NUMBER = " + MY_NUMBER);
     System.out.println("Double: myDouble = " + myDouble);
 
-    myString = myString.toLowerCase(); // .toLowerCase returns a string where all the letters are
-                                       // lower case. There's an upper case method that works
-                                       // similarly to this one.
+    myString = myString.toLowerCase();
+    // .toLowerCase returns a string where all the letters are lower case. There's an upper case
+    // method that works similarly to this one.
 
-    String mySubstring = myString.substring(0, 1); // .substring returns a string that is within the
-                                                   // range of the given string. In this example,
-                                                   // "HEya" from 0 to 1 will return "H" as a new
-                                                   // string
+    String mySubstring = myString.substring(0, 1);
+    // .substring returns a string that is within the range of the given string. In this example,
+    // "HEya" from 0 to 1 will return "H" as a new string.
 
     System.out.println("String: mySubstring = " + mySubstring);
 
-    String yesNo = mySubstring.equals("H") ? "Yes" : "No"; // Using == compares the locations in
-                                                           // memory of two objects.
+    String yesNo = mySubstring.equals("H") ? "Yes" : "No";
+    // Using == compares the locations in memory of two objects.
+
     System.out.println(yesNo);
 
     while (yesNo.equals("Yes")) {
       if (isTrue && 1 > 0) {
         yesNo = "No";
-        break; // This causes the loop to end and for execution to continue outside of the statement
-               // it resides in.
+        break;
+        // This causes the loop to end and for execution to continue outside of the statement it
+        // resides in.
       } else {
         yesNo = "No";
         continue; // This causes the loop to immediately shift to the next iteration of the loop.
       }
     }
 
-    myDouble += 3 + 4 - 2 * 8 / 3 % 5 + myDouble++ + myDouble--; // Operator precedence is
-                                                                 // essentially the order of
-                                                                 // operators. The order goes along
-                                                                 // the lines of post-fix, unary,
-                                                                 // multiplicitive, additive,
-                                                                 // relational, conditional, and
-                                                                 // finally assignment.
+    myDouble += 3 + 4 - 2 * 8 / 3 % 5 + myDouble++ + myDouble--;
+    // Operator precedence is essentially the order of operators. The order goes along the lines of
+    // post-fix, unary, multiplicative, additive, relational, conditional, and finally assignment.
 
-    if (mySubstring.compareTo(myString) >= 1) { // .compareTo returns an integer that represents the
-                                                // lexicographic distance one string is from
-                                                // another. If mySubstring is larger than myString
-                                                // lexicographically, it will return a positive
-                                                // number. If they're the same, it will return 0. If
-                                                // mySubstring is smaller, it will return a negative
-                                                // number)
+    if (mySubstring.compareTo(myString) >= 1) {
+      // .compareTo returns an integer that represents the lexicographic distance one string is from
+      // another. If mySubstring is larger than myString lexicographically, it will return a
+      // positive number. If they're the same, it will return 0. If mySubstring is smaller, it will
+      // return a negative number)
+
       System.out.println(
           "\"" + mySubstring + "\" is lexicographically bigger than \"" + myString + "\".");
     } else if (mySubstring.compareTo(myString) == 0) {
@@ -335,19 +363,23 @@ public class Main {
           "\"" + mySubstring + "\" is lexicographically smaller than \"" + myString + "\".");
     }
 
-    int dubToInt = (int) myDouble; // This is an example of casting. By putting (int) before
-                                   // myDouble, I will be able to put the double into an integer.
-                                   // The 2.3 will lose its .3 and just become 2.
+    int dubToInt = (int) myDouble;
+    // This is an example of casting. By putting (int) before myDouble, I will be able to put the
+    // double into an integer. The 2.3 will lose its .3 and just become 2.
 
     System.out.println("myDouble being casted to an integer results in: " + dubToInt);
 
     int[] myArray = new int[10];
-    String listOfNumbers = "";
+
+    StringBuilder builder = new StringBuilder();
 
     for (int i = 0; i < myArray.length; i++) {
       myArray[i] = (i + 1);
-      listOfNumbers += myArray[i] + ", ";
+      builder.append(myArray[i]);
+      builder.append(", ");
     }
+
+    String listOfNumbers = builder.toString();
 
     System.out.println("myArray: " + listOfNumbers);
 
